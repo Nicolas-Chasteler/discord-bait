@@ -66,7 +66,7 @@ class PostgresLogger(logging.Handler):
 
         # Execute query
         self.cursor.execute(check_query, (file_name))
-        exists = cursor.fetchone()[0]
+        exists = self.cursor.fetchone()[0]
         return exists
 
     def create_tables(self):
@@ -97,7 +97,7 @@ class PostgresLogger(logging.Handler):
         );
         """
         self.cursor.execute(check_query)
-        exists = cursor.fetchone()[0]
+        exists = self.cursor.fetchone()[0]
 
         if not exists:
             self.execute_sql_file()

@@ -32,29 +32,18 @@ class PostgresLogger(logging.Handler):
             sql = file.read()
 
             # Run sql file
-            try:
-                self.cursor.execute(sql)
-                self.conn.commit()
-            except Exception as e:
-                print(f"Failed to run script: {file}")
-                print(f"{e}")
-                self.conn.rollback()
+            self.cursor.execute(sql)
+            self.conn.commit()
 
             # Inserting record of save into pg_scripts
             insert_record = """INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s)"""
 
-
             # Save record of execution to pg_scripts
             print(sql_file_path)
             print(int(os.path.basename(file_name).split("__")[0]), file_name)
-            try:
-                file_name = os.path.basename(sql_file_path)
-                self.cursor.execute(insert_record, (int(os.path.basename(file_name).split("__")[0]), file_name))
-                self.conn.commit()
-            except Exception as e:
-                print(f"Failed to save to pg_scripts: {file}")
-                print(f"{e}")
-                self.conn.rollback()
+            file_name = os.path.basename(sql_file_path)
+            self.cursor.execute(insert_record, (int(os.path.basename(file_name).split("__")[0]), file_name))
+            self.conn.commit()
 
     def check_execution(self, file_name):
         # Returns true if pg_scripts exists

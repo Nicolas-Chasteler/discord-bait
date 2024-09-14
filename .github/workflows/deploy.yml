@@ -25,7 +25,7 @@ jobs:
         PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
         PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
       run: |
-        curl -X POST "$PORTAINER_URL/api/endpoints/1/docker/images/create?fromImage=discord-bait&tag=latest" \
+        curl -X POST "$PORTAINER_URL/api/endpoints/2/docker/images/create?fromImage=discord-bait&tag=latest" \
           -H "X-API-Key:$PORTAINER_API_KEY" \
           --data-binary "@Dockerfile"
 
@@ -34,7 +34,7 @@ jobs:
         PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
         PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
       run: |
-        curl -X POST "$PORTAINER_URL/api/endpoints/1/docker/services/create" \
+        curl -X POST "$PORTAINER_URL/api/endpoints/2/docker/services/create" \
           -H "X-API-Key:$PORTAINER_API_KEY" \
           -H "Content-Type: application/json" \
           -d '{

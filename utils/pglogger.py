@@ -27,24 +27,24 @@ class PostgresLogger(logging.Handler):
 
     # Execute arbitrary sql file and save record to pg_scripts
     def execute_sql_file(self, sql_file_path):
-        # Open sql file
-        with open(sql_file_path, 'r') as file:
-            sql = file.read()
+            # Open sql file
+            with open(sql_file_path, 'r') as file:
+                sql_content = file.read()
 
-            # Run sql file
-            self.cursor.execute(sql)
-            self.conn.commit()
+            # Execute the SQL file
+            self.cursor.execute(sql_content)
+            self.conn.commit()  # Commit the SQL execution
 
-            # Inserting record of save into pg_scripts
-            insert_record = sql.SQL(
-                """INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s);"""
-            )
-
-            # Save record of execution to pg_scripts
+            # Prepare to insert record into pg_scripts
             file_name = os.path.basename(sql_file_path)
-            self.cursor.execute(insert_record, (int(file_name.split("__")[0]), file_name))
-            self.cursor.execute(insert_record, (50, "test"))
-            self.conn.commit()
+            script_id = int(file_name.split("__")[0])  # Extract the numeric ID
+
+            insert_query = """
+                INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s);
+            """
+            # Insert record of execution into pg_scripts
+            self.cursor.execute(insert_query, (script_id, file_name))
+            self.conn.commit()  # Commit the insertion
 
     def check_execution(self, file_name):
         # Returns true if pg_scripts exists

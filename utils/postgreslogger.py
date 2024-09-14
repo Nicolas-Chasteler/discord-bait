@@ -1,20 +1,20 @@
 #postgreslogger.py
 import logging
 import os
-import pyscopg2
-from pyscopg2 import sql
+import psycopg2
+from psycopg2 import sql
 
 
 
 class PostgresLogger(logging.Handler):
-    def __init__(self, dsn):
+    def __init__(self):
         super().__init__()
 
         # Get connection info
         dbname = os.getenv("PG_NAME", "logger")
-        user = os.getenv("PG_USER")
-        password = os.getenv("PG_PASSWORD")
-        host = os.getenv("PG_HOST")
+        user = os.getenv("PG_USER", "postgres")
+        password = os.getenv("PG_PASSWORD", "postgres")
+        host = os.getenv("PG_HOST", "localhost")
         port = os.getenv("PG_PORT", 5432)
 
         self.dsn = f"dbname={dbname} user={user} password={password} host={host} port={port}"
@@ -64,7 +64,7 @@ class PostgresLogger(logging.Handler):
 
     @staticmethod
     def initialize_logger():
-        logger.logging.getLogger('discord-bait')
+        logger = logging.getLogger('discord-bait')
         logger.setLevel(logging.DEBUG)
         pg_handler = PostgresLogger()
         logger.addHandler(pg_handler)

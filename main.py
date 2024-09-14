@@ -2,7 +2,7 @@
 import os
 import discord
 import logging
-import utils
+from utils.postgreslogger import PostgresLogger
 from discord.ext import commands
 
 logger = PostgresLogger.initialize_logger()
@@ -23,6 +23,6 @@ def main():
     bot = DiscordBot()
     bot.run(TOKEN)
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     main()
 

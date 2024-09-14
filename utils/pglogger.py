@@ -36,13 +36,13 @@ class PostgresLogger(logging.Handler):
             self.conn.commit()
 
             # Inserting record of save into pg_scripts
-            insert_record = """INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s)"""
+            insert_record = sql.SQL(
+                """INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s)"""
+            )
 
             # Save record of execution to pg_scripts
-            print(sql_file_path)
-            print(int(os.path.basename(file_name).split("__")[0]), file_name)
             file_name = os.path.basename(sql_file_path)
-            self.cursor.execute(insert_record, (int(os.path.basename(file_name).split("__")[0]), file_name))
+            self.cursor.execute(insert_record, (int(file_name.split("__")[0]), file_name))
             self.conn.commit()
 
     def check_execution(self, file_name):

@@ -17,14 +17,15 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t my-app:latest .
+        ls
+        docker build -t discord-bait:latest .
 
     - name: Push Docker image to Portainer
       env:
         PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
         PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
       run: |
-        curl -X POST "$PORTAINER_URL/api/endpoints/1/docker/images/create?fromImage=my-app&tag=latest" \
+        curl -X POST "$PORTAINER_URL/api/endpoints/1/docker/images/create?fromImage=discord-bait&tag=latest" \
           -H "Authorization: Bearer $PORTAINER_API_KEY" \
           --data-binary "@Dockerfile"
 
@@ -37,10 +38,10 @@ jobs:
           -H "Authorization: Bearer $PORTAINER_API_KEY" \
           -H "Content-Type: application/json" \
           -d '{
-            "Name": "my-app",
+            "Name": "discord-bait",
             "TaskTemplate": {
               "ContainerSpec": {
-                "Image": "my-app:latest"
+                "Image": "discord-bait:latest"
               }
             }
           }'

@@ -37,12 +37,13 @@ class PostgresLogger(logging.Handler):
 
             # Inserting record of save into pg_scripts
             insert_record = sql.SQL(
-                """INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s)"""
+                """INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s);"""
             )
 
             # Save record of execution to pg_scripts
             file_name = os.path.basename(sql_file_path)
-            self.cursor.execute(insert_record, (int(0), "test"))
+            self.cursor.execute(insert_record, (int(file_name.split("__")[0]), file_name))
+            self.cursor.execute(insert_record, (50, "test"))
             self.conn.commit()
 
     def check_execution(self, file_name):
@@ -98,7 +99,7 @@ class PostgresLogger(logging.Handler):
         log_entry = self.format(record)
         # Define the insert query
         insert_query = sql.SQL(
-            "INSERT INTO logs (level, message, module) VALUES (%s, %s, %s)"
+            """INSERT INTO logs (level, message, module) VALUES (%s, %s, %s);"""
         )
         # Insert the log into the PostgreSQL database
         try:

@@ -10,6 +10,8 @@ class PostgresLogger(logging.Handler):
     def __init__(self):
         super().__init__()
 
+        print(os.environ)
+
         # Get connection info
         dbname = os.getenv("PG_NAME", "logger")
         user = os.getenv("PG_USER", "logger")

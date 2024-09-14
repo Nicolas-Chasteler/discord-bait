@@ -41,9 +41,8 @@ class PostgresLogger(logging.Handler):
                 self.conn.rollback()
 
             # Inserting record of save into pg_scripts
-            insert_record = sql.SQL(
-                "INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s)"
-            )
+            insert_record = """INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s)"""
+
 
             # Save record of execution to pg_scripts
             try:

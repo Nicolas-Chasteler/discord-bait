@@ -19,7 +19,9 @@ class PostgresLogger(logging.Handler):
         host = os.getenv("PG_HOST", "localhost")
         port = os.getenv("PG_PORT", 5432)
 
-        self.conn = psycopg2.connect(database=dbname, user=user, host=host, password=password, port=port)
+        self.dsn = f"dbname={dbname} user={user} password={password} host={host} port={port}"
+
+        self.conn = psycopg2.connect(self.dsn)
         self.cursor = self.conn.cursor()
 
         self._create_table_if_not_exist()

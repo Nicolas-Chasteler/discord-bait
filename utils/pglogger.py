@@ -65,7 +65,7 @@ class PostgresLogger(logging.Handler):
         """
 
         # Execute query
-        self.cursor.execute(query, (file_name))
+        self.cursor.execute(check_query, (file_name))
         exists = cursor.fetchone()[0]
         return exists
 

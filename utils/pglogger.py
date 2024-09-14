@@ -96,7 +96,7 @@ class PostgresLogger(logging.Handler):
             AND table_name = 'pg_scripts'
         );
         """
-        self.cursor.execute(query)
+        self.cursor.execute(check_query)
         exists = cursor.fetchone()[0]
 
         if not exists:

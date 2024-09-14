@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS logs (
+	id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    level VARCHAR(50),
+    message TEXT,
+	module VARCHAR(100)
+);

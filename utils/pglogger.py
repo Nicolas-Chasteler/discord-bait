@@ -46,7 +46,8 @@ class PostgresLogger(logging.Handler):
 
             # Save record of execution to pg_scripts
             try:
-                self.cursor.execute(insert_record, (int(file.split("__")[0]), file))
+                file_name = os.path.basename(sql_file_path)
+                self.cursor.execute(insert_record, (int(os.path.basename(file_name).split("__")[0]), file_name))
                 self.conn.commit()
             except Exception as e:
                 print(f"Failed to save to pg_scripts: {file}")

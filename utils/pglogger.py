@@ -45,6 +45,8 @@ class PostgresLogger(logging.Handler):
 
 
             # Save record of execution to pg_scripts
+            print(sql_file_path)
+            print(int(os.path.basename(file_name).split("__")[0]), file_name)
             try:
                 file_name = os.path.basename(sql_file_path)
                 self.cursor.execute(insert_record, (int(os.path.basename(file_name).split("__")[0]), file_name))

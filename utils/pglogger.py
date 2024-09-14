@@ -74,7 +74,7 @@ class PostgresLogger(logging.Handler):
         self._check_pg_scripts()
 
         # Get all pg_scripts
-        folder_path = "./sql_scripts"
+        folder_path = "./pg_scripts"
         sql_files = sorted([f for f in os.listdir(folder_path) if f.endswith(".sql")])
 
         for file_name in sql_files:
@@ -100,7 +100,7 @@ class PostgresLogger(logging.Handler):
         exists = self.cursor.fetchone()[0]
 
         if not exists:
-            self.execute_sql_file("./sql_scripts/001__Create_pg_scripts.sql")
+            self.execute_sql_file("./pg_scripts/001__Create_pg_scripts.sql")
 
     def emit(self, record):
         # Format the log record

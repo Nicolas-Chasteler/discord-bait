@@ -100,7 +100,7 @@ class PostgresLogger(logging.Handler):
         exists = self.cursor.fetchone()[0]
 
         if not exists:
-            self.execute_sql_file()
+            self.execute_sql_file("./sql_scripts/001__Create_pg_scripts.sql")
 
     def emit(self, record):
         # Format the log record

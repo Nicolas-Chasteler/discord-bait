@@ -25,23 +25,15 @@ jobs:
         PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
         PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
       run: |
-        curl -X POST "$PORTAINER_URL/api/endpoints/2/docker/images/create?fromImage=discord-bait&tag=latest" \
-          -H "X-API-Key:$PORTAINER_API_KEY" \
-          --data-binary "@Dockerfile"
+        docker tag discord-bait:latest ${{ secrets.PORTAINER_URL }}/discord-bait:latest
+        docker push ${{ secrets.PORTAINER_URL }}/discord-bait:latest
 
     - name: Deploy to Portainer
       env:
         PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
         PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
       run: |
-        curl -X POST "$PORTAINER_URL/api/endpoints/2/docker/services/create" \
+        curl -X POST "$PORTAINER_URL/api/endpoints/2/docker/containers/discord-bait/update" \
           -H "X-API-Key:$PORTAINER_API_KEY" \
           -H "Content-Type: application/json" \
-          -d '{
-            "Name": "discord-bait",
-            "TaskTemplate": {
-              "ContainerSpec": {
-                "Image": "discord-bait:latest"
-              }
-            }
-          }'
+          -d '{"image": "${{ secrets.PORTAINER_URL }}/discord-bait:latest"}'

@@ -15,7 +15,9 @@ class DiscordBot(discord.Client):
         logger.info(f"Logged in as {self.user}. ID: {self.user.id}")
 
     async def on_message(self, message):
-        logger.debug(f"Got message {message}")
+        logger.debug(f"Received message: {message}")
+        author = message.author.id
+        await self.send_message(message.channel, f"<@{author}> Hello!")
         #todo send message to specified channel, maybe respond to initial message after some time?
 
 

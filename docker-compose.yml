@@ -1,3 +1,6 @@
 services:
     app:
         build: .
+        environment:
+            - PG_HOST = PG_HOST
+            

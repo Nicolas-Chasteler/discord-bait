@@ -26,7 +26,7 @@ jobs:
         PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
       run: |
         curl -X POST "$PORTAINER_URL/api/endpoints/1/docker/images/create?fromImage=discord-bait&tag=latest" \
-          -H "Authorization: Bearer $PORTAINER_API_KEY" \
+          -H "X-API-Key:$PORTAINER_API_KEY" \
           --data-binary "@Dockerfile"
 
     - name: Deploy to Portainer
@@ -35,7 +35,7 @@ jobs:
         PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
       run: |
         curl -X POST "$PORTAINER_URL/api/endpoints/1/docker/services/create" \
-          -H "Authorization: Bearer $PORTAINER_API_KEY" \
+          -H "X-API-Key:$PORTAINER_API_KEY" \
           -H "Content-Type: application/json" \
           -d '{
             "Name": "discord-bait",

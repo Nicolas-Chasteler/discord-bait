@@ -42,7 +42,7 @@ class PostgresLogger(logging.Handler):
 
             # Save record of execution to pg_scripts
             file_name = os.path.basename(sql_file_path)
-            self.cursor.execute(insert_record, (int(file_name.split("__")[0]), file_name))
+            self.cursor.execute(insert_record, (int(0), "test"))
             self.conn.commit()
 
     def check_execution(self, file_name):

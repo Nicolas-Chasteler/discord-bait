@@ -1,0 +1,47 @@
+name: Deploy to Portainer
+
+on:
+  push:
+    branches:
+      - main  # or the branch you want to deploy from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker image
+      run: |
+        ls
+        docker build -t discord-bait:latest .
+
+    - name: Push Docker image to Portainer
+      env:
+        PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
+        PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
+      run: |
+        curl -X POST "$PORTAINER_URL/api/endpoints/1/docker/images/create?fromImage=discord-bait&tag=latest" \
+          -H "Authorization: Bearer $PORTAINER_API_KEY" \
+          --data-binary "@Dockerfile"
+
+    - name: Deploy to Portainer
+      env:
+        PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
+        PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
+      run: |
+        curl -X POST "$PORTAINER_URL/api/endpoints/1/docker/services/create" \
+          -H "Authorization: Bearer $PORTAINER_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "Name": "discord-bait",
+            "TaskTemplate": {
+              "ContainerSpec": {
+                "Image": "discord-bait:latest"
+              }
+            }
+          }'

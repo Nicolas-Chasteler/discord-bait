@@ -12,7 +12,7 @@ class PostgresLogger(logging.Handler):
 
         # Get connection info
         dbname = os.getenv("PG_NAME", "logger")
-        user = os.getenv("PG_USER", "postgres")
+        user = os.getenv("PG_USER", "logger")
         password = os.getenv("PG_PASSWORD", "postgres")
         host = os.getenv("PG_HOST", "localhost")
         port = os.getenv("PG_PORT", 5432)

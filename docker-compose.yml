@@ -3,4 +3,6 @@ services:
         build: .
         environment:
             - PG_HOST = ${PG_HOST}
+            - PG_PASSWORD = ${PG_PASSWORD}
+            
             

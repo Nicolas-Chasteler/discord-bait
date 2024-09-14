@@ -73,7 +73,7 @@ class PostgresLogger(logging.Handler):
             file_path = os.path.join(folder_path, file_name)
 
             # Check if script has already been run
-            if self.check_execution(file_name):
+            if not self.check_execution(file_name):
                 # Run script
                 self.execute_sql_file(file_path)
 

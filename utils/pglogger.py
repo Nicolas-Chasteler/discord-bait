@@ -1,113 +1,24 @@
 #postgreslogger.py
 import logging
 import os
-import psycopg2
-from psycopg2 import sql
+from pygres import PostgresHandler
 
 
 
 class PostgresLogger(logging.Handler):
     def __init__(self):
         super().__init__()
-
-        # Get connection info
-        dbname = os.getenv("PG_NAME", "logger")
-        user = os.getenv("PG_USER", "logger")
-        password = os.getenv("PG_PASSWORD", "password")
-        host = os.getenv("PG_HOST", "localhost")
-        port = os.getenv("PG_PORT", 5432)
-
-        # Connect to PG
-        self.dsn = f"dbname={dbname} user={user} password={password} host={host} port={port}"
-        self.conn = psycopg2.connect(self.dsn)
+        self.conn = PostgresHandler().get_cursor().connection
         self.cursor = self.conn.cursor()
-
-        # Create tables
-        self.create_tables()
-
-    # Execute arbitrary sql file and save record to pg_scripts
-    def execute_sql_file(self, sql_file_path):
-        # Open sql file
-        with open(sql_file_path, 'r') as file:
-            sql_content = file.read()
-
-        # Execute the SQL file
-        self.cursor.execute(sql_content)
-        self.conn.commit()  # Commit the SQL execution
-
-        # Prepare to insert record into pg_scripts
-        file_name = os.path.basename(sql_file_path)
-        script_id = int(file_name.split("__")[0])  # Extract the numeric ID
-
-        insert_query = """
-            INSERT INTO pg_scripts (id, file_name) VALUES (%s, %s);
-        """
-        # Insert record of execution into pg_scripts
-        self.cursor.execute(insert_query, (script_id, file_name))
-        self.conn.commit()  # Commit the insertion
-
-    def check_execution(self, file_name):
-        # Returns true if pg_scripts exists
-        check_query = """
-        SELECT EXISTS (
-            SELECT 1
-            FROM pg_scripts
-            WHERE file_name = %s
-        );
-        """
-
-        # Execute query
-        self.cursor.execute(check_query, (file_name,))
-        exists = self.cursor.fetchone()[0]
-        return exists
-
-    def create_tables(self):
-        # Create pg_scripts if not exists
-        self._check_pg_scripts()
-
-        # Get all pg_scripts
-        folder_path = "./pg_scripts"
-        sql_files = sorted([f for f in os.listdir(folder_path) if f.endswith(".sql")])
-
-        for file_name in sql_files:
-            file_path = os.path.join(folder_path, file_name)
-
-            # Check if script has already been run
-            if not self.check_execution(file_name):
-                # Run script
-                self.execute_sql_file(file_path)
-
-    # Check if pg_scripts table exists, if not create
-    def _check_pg_scripts(self):
-        # Checks if pg_scripts exists
-        check_query = """
-        SELECT EXISTS (
-            SELECT 1
-            FROM information_schema.tables
-            WHERE table_schema = 'public'
-            AND table_name = 'pg_scripts'
-        );
-        """
-        self.cursor.execute(check_query)
-        exists = self.cursor.fetchone()[0]
-
-        if not exists:
-            self.execute_sql_file("./pg_scripts/001__Create_pg_scripts.sql")
 
     def emit(self, record):
         # Format the log record
         log_entry = self.format(record)
         # Define the insert query
-        insert_query = sql.SQL(
-            """INSERT INTO logs (level, message, module) VALUES (%s, %s, %s);"""
-        )
+        insert_query = """INSERT INTO logs (level, message, module) VALUES (%s, %s, %s);"""
         # Insert the log into the PostgreSQL database
-        try:
-            self.cursor.execute(insert_query, (record.levelname, log_entry, record.module))
-            self.conn.commit()
-        except Exception as e:
-            print(f"Failed to insert log entry: {e}")
-            self.conn.rollback()
+        self.cursor.execute(insert_query, (record.levelname, log_entry, record.module))
+        self.conn.commit()
 
     def close(self):
         self.cursor.close()

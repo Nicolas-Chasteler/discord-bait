@@ -31,7 +31,6 @@ class DiscordBot(discord.Client):
 
 def main():
     bot = DiscordBot()
-    print("test to see if ci/cd is working 2")
     bot.run(TOKEN)
 
 if __name__ == "__main__":

@@ -25,6 +25,7 @@ jobs:
               { "name": "PG_HOST", "value": "'"${{ secrets.PG_HOST }}"'" },
               { "name": "DISCORD_TOKEN", "value": "'"${{ secrets.DISCORD_TOKEN }}"'" }
             ],
-            "pullImage":true
+            "pullImage":true,
+            "prune":true
           }'
           

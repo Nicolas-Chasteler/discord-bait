@@ -2,31 +2,36 @@
 import os
 import discord
 from utils.pglogger import logger
+from utils.discord_message_handler import save_message
 from discord.ext import commands
 
 TOKEN = os.getenv("DISCORD_TOKEN")
+HOST_CHANNEL = os.getenv("HOST_CHANNEL")
 
 class DiscordBot(discord.Client):
     async def on_ready(self):
         logger.info(f"Logged in as {self.user}. ID: {self.user.id}")
 
     async def on_message(self, message):
-        logger.debug(f"Received message: {message.content}, {message}")
-        if message.author == self.user:
-            return
+        logger.debug(f"Message {message.author.name}: {message.content}")
+        save_message(message)
 
-        # Regular message types
-        if message.type in {discord.MessageType.default, discord.MessageType.reply}:
-            logger.debug(f"User message: {message.type}, {message}")
-            author = message.author.id
-            await message.channel.send(f"<@{author}> Hello!")
+        # Received a DM
+        if isinstance(message.channel, discord.DMChannel):
+            host = self.get_channel(HOST_CHANNEL)
 
-        # System message types
-        else:
-            logger.debug(f"System message: {message.type}, {message}")
+            if host_channel is None:
+                logger.warning(f"Host channel not found: {HOST_CHANNEL}")
+                return
 
+            attachments = []
+            if message.attachments:
+                for attachment in message.attachments:
+                    file_buffer = BytesIO()
+                    await attachment.save(file_buffer)
+                    attachments.append(file_buffer)
 
-        #todo send message to specified channel, maybe respond to initial message after some time?
+            await host.send(content=f"<@{message.author.id}>: {message.content}", files=attachments)
 
 
 def main():

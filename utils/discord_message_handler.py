@@ -30,7 +30,7 @@ async def save_message(message):
 
     # Parse and save attachments for DMS only
     if isinstance(message.channel, discord.DMChannel) and message.attachments:
-        for attachment in message_attachments:
+        for attachment in message.attachments:
             file_buffer = BytesIO()
             await attachment.save(file_buffer)
 

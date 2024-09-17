@@ -94,15 +94,16 @@ class DiscordBot(discord.Client):
 
     async def on_relationship_add(self, relationship):
         logger.debug(f"Received relationship {relationship}, {relationship.type}")
-        if relationship.type == discord.RelationshipType.friend or relationship.type == discord.RelationshipType.incoming_request:
+        if relationship.type == discord.RelationshipType.incoming_request:
             try:
                 logger.debug(f"Received friend request {relationship}")
                 await asyncio.sleep(15)
                 await relationship.accept()
                 logger.debug(f"Added friend {relationship.user.name}")
-                await relationship.user.send(f"Howdy!")
             except Exception as e:
                 logger.warning(f"Error accepting friend request: {e}")
+
+            await relationship.user.send(f"Howdy!")
 
     async def pull_channel(self, id):
         host = self.get_channel(id)

@@ -89,14 +89,18 @@ class DiscordBot(discord.Client):
 
             await thread.send(content=f"<@{message.author.id}>: {message.content}", files=attachments)
 
-    async def on_friend_request(self, request):
-        try:
-            await asyncio.sleep(40)
-            await request.accept()
-            logger.debug(f"Accepted friend request from {relationship.user.name}")
-            await request.user.send(f"Howdy!")
-        except Exception as e:
-            logger.warning(f"Failed to accept friend request: {e}")
+    @tasks.loop(seconds=60)
+    async def poll_friend_requests(self):
+        logger.debug(f"Polling for new friend requests")
+        for relationship in self.user.relationships:
+            if relationship.type == discord.RelationshipType.incoming_request:
+                try:
+                    await asyncio.sleep(15)
+                    await relationship.accept()
+                    logger.debug(f"Accepted friend request from {relationship.user.name}")
+                    await relationship.user.send(f"Howdy!")
+                except Exception as e:
+                    logger.warning(f"Failed to accept friend request: {e}")
 
     async def pull_channel(self, id):
         host = self.get_channel(id)

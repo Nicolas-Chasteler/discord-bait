@@ -98,6 +98,7 @@ class DiscordBot(discord.Client):
     async def poll_friend_requests(self):
         logger.debug(f"Polling for new friend requests")
         for relationship in self.user.relationships:
+            logger.debug(f"Relationship {relationship}")
             if relationship.type == discord.RelationshipType.incoming_request:
                 try:
                     await asyncio.sleep(15)

@@ -75,7 +75,7 @@ def find_channel_id_from_thread(thread):
         SELECT channel_id
         FROM discord_threads
         WHERE thread_id = %s
-        ORDER BY created_ad DESC
+        ORDER BY created_at DESC
         LIMIT 1;
     """
     cursor.execute(select_message, (thread.id,))

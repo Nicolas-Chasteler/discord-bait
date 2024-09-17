@@ -42,7 +42,7 @@ async def save_message(message):
                 message.id
             )
             insert_message = """
-                INSERT INTO attachments (filename, file_data, content_type, message_id)
+                INSERT INTO discord_attachments (filename, file_data, content_type, message_id)
                 VALUES (%s, %s, %s, %s);
             """
             cursor.execute(insert_message, message_values)

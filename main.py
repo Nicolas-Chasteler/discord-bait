@@ -16,8 +16,6 @@ class DiscordBot(discord.Client):
 
     async def on_ready(self):
         logger.info(f"Logged in as {self.user}. ID: {self.user.id}")
-        # Start the poll_friend_requests task
-        self.poll_friend_requests.start()
 
     async def on_message(self, message):
         logger.debug(f"Message {message.author.name}: {message.content}")
@@ -94,25 +92,13 @@ class DiscordBot(discord.Client):
 
             await thread.send(content=f"<@{message.author.id}>: {message.content}", files=attachments)
 
-    @tasks.loop(seconds=60)
-    async def poll_friend_requests(self):
-        logger.debug(f"Polling for new friend requests")
-        for relationship in self.user.relationships:
-            logger.debug(f"Relationship {relationship}")
-            if relationship.type == discord.RelationshipType.incoming_request:
-                try:
-                    await asyncio.sleep(15)
-                    await relationship.accept()
-                    logger.debug(f"Accepted friend request from {relationship.user.name}")
-                    await relationship.user.send(f"Howdy!")
-                except Exception as e:
-                    logger.warning(f"Failed to accept friend request: {e}")
-
-    async def on_friend_request(self, request):
-        logger.debug(f"Received friend request {request}")
-        await asyncio.sleep(15)
-        await request.accept()
-        await request.user.send(f"Howdy!")
+    async def on_relationship_add(self, relationship):
+        logger.debug(f"Received relationship {relationship}, {relationship.type}")
+        if relationship.type == discord.RelationshipType.friend or relationship.type == discord.RelationshipType.incoming:
+            logger.debug(f"Received friend request {relationship}")
+            await asyncio.sleep(15)
+            await relationship.accept()
+            await relationship.user.send(f"Howdy!")
 
     async def pull_channel(self, id):
         host = self.get_channel(id)

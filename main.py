@@ -17,14 +17,35 @@ class DiscordBot(discord.Client):
         logger.debug(f"Message {message.author.name}: {message.content}")
         await save_message(message)
 
+        # Stop processing messages from bots
+        if message.author.bot:
+            return
+
         # Received a DM
         if isinstance(message.channel, discord.DMChannel):
             host = self.get_channel(int(HOST_CHANNEL))
 
+            # Validate host channel exists
             if host is None:
                 logger.warning(f"Host channel not found: {HOST_CHANNEL}")
                 return
 
+            # Validate host channel is a text channel
+            if not isinstance(host, discord.TextChannel):
+                logger.warning(f"Host channel is not a text channel {host}")
+                return
+
+            # Check for existance of message thread, if none exist create one
+
+            # Create new thread
+            msg = await host.send(content=f"<@{message.author.id}> started a DM")
+            thread = await msg.create_thread(name=f"{message.author.name}")
+
+
+
+
+
+            # Save and process attachments
             attachments = []
             if message.attachments:
                 for attachment in message.attachments:

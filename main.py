@@ -3,7 +3,7 @@ import os
 from io import BytesIO
 import discord
 from utils.pglogger import logger
-from utils.discord_message_handler import save_message
+from utils.discord_message_handler import save_message, save_thread, find_thread_id
 from discord.ext import commands
 
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -21,14 +21,12 @@ class DiscordBot(discord.Client):
         if message.author.bot:
             return
 
+        # Received thread message
+
+
         # Received a DM
         if isinstance(message.channel, discord.DMChannel):
-            host = self.get_channel(int(HOST_CHANNEL))
-
-            # Validate host channel exists
-            if host is None:
-                logger.warning(f"Host channel not found: {HOST_CHANNEL}")
-                return
+            host = self.pull_channel(int(HOST_CHANNEL))
 
             # Validate host channel is a text channel
             if not isinstance(host, discord.TextChannel):
@@ -36,14 +34,17 @@ class DiscordBot(discord.Client):
                 return
 
             # Check for existance of message thread, if none exist create one
+            thread_id = find_thread_id(message)
+            if thread_id:
+                thread_id = self.pull_channel(thread_id)
 
-            # Create new thread
-            msg = await host.send(content=f"<@{message.author.id}> started a DM")
-            thread = await msg.create_thread(name=f"{message.author.name}")
-
-
-
-
+            # Create new thread if no thread exists or if unable to fetch thread
+            if not thread_id:
+                msg = await host.send(content=f"<@{message.author.id}> started a DM")
+                thread = await msg.create_thread(name=f"{message.author.name}")
+                save_thread(thread, message)
+            else:
+                thread = thread_id
 
             # Save and process attachments
             attachments = []
@@ -54,7 +55,28 @@ class DiscordBot(discord.Client):
                     discord_file = discord.File(byte_io, filename=attachment.filename)
                     attachments.append(discord_file)
 
-            await host.send(content=f"<@{message.author.id}>: {message.content}", files=attachments)
+            await thread.send(content=f"<@{message.author.id}>: {message.content}", files=attachments)
+
+    async def pull_channel(self, id):
+        host = self.get_channel(id)
+
+        # Validate host channel exists
+        if host is None:
+            # Try to fetch channel from discord API directly
+            try:
+                host = await self.fetch_channel(id)
+            except discord.NotFound:
+                logger.warning(f"Host channel not found: {id}")
+                return None
+            except discord.Forbidden:
+                logger.warning(f"Bot does not have permission for channel: {id}")
+                return None
+            except discord.HTTPException as e:
+                logger.warning(f"HTTP Exception: {e}")
+                return None
+        return host
+
+
 
 
 def main():

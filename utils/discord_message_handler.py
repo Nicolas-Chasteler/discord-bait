@@ -48,4 +48,42 @@ async def save_message(message):
             cursor.execute(insert_message, message_values)
             conn.commit()
 
+def find_thread_id(message):
+    conn = PostgresHandler().get_cursor().connection
+    cursor = conn.cursor()
+
+    select_message = """
+        SELECT thread_id
+        FROM discord_threads
+        WHERE channel_id = %s
+        ORDER BY created_at DESC
+        LIMIT 1;
+    """
+    cursor.execute(select_message, (message.channel.id,))
+    thread_id = cursor.fetchone()
+
+    if thread_id:
+        return thread_id[0]
+    else:
+        return None
+
+def save_thread(thread, message):
+    conn = PostgresHandler().get_cursor().connection
+    cursor = conn.cursor()
+    message_values = (
+        thread.channel.id,
+        message.author.id,
+        message.author.name,
+        message.channel.id,
+        str(message.channel),
+        thread.created_at
+    )
+    insert_message = """
+        INSERT INTO discord_threads (thread_id, user_id, user_name, channel_id, channel_name, created_at)
+        VALUES (%s, %s, %s, %s, %s, %s);
+    """
+    cursor.execute(insert_message, message_values)
+    conn.commit()
+
+
 

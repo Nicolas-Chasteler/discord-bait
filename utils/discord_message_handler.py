@@ -1,6 +1,6 @@
 # utils/discord_message_handler.py
 import discord
-import io
+from io import BytesIO
 from utils.pglogger import logger
 from pygres import PostgresHandler
 

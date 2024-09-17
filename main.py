@@ -28,9 +28,10 @@ class DiscordBot(discord.Client):
             attachments = []
             if message.attachments:
                 for attachment in message.attachments:
-                    file_buffer = BytesIO()
-                    await attachment.save(file_buffer)
-                    attachments.append(file_buffer)
+                    attachment_bytes = await attachment.read()
+                    byte_io = BytesIO(attachment_bytes)
+                    discord_file = discord.File(byte_io, filename=attachment.filename)
+                    attachments.append(discord_file)
 
             await host.send(content=f"<@{message.author.id}>: {message.content}", files=attachments)
 

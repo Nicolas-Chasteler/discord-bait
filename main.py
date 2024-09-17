@@ -36,15 +36,19 @@ class DiscordBot(discord.Client):
             # Check for existance of message thread, if none exist create one
             thread_id = find_thread_id(message)
             if thread_id:
+                logger.debug(f"Found thread in DB {thread_id}")
                 thread_id = await self.pull_channel(thread_id)
 
             # Create new thread if no thread exists or if unable to fetch thread
             if not thread_id:
+                logger.debug(f"Unable to pull any thread {thread_id}")
                 msg = await host.send(content=f"<@{message.author.id}> started a DM")
                 thread = await msg.create_thread(name=f"{message.author.name}")
                 save_thread(thread, message)
+                logger.debug(f"Created thread {thread.channel.id}")
             else:
                 thread = thread_id
+                logger.debug(f"Found existing thread {thread.channel.id}")
 
             # Save and process attachments
             attachments = []

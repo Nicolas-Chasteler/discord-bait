@@ -71,7 +71,7 @@ def save_thread(thread, message):
     conn = PostgresHandler().get_cursor().connection
     cursor = conn.cursor()
     message_values = (
-        thread.channel.id,
+        thread.id,
         message.author.id,
         message.author.name,
         message.channel.id,

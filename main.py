@@ -11,6 +11,11 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 HOST_CHANNEL = os.getenv("HOST_CHANNEL")
 
 class DiscordBot(discord.Client):
+    def __init__(self, *args, **kwargs):
+        super().__init(*args, **kwargs)
+        # Start the poll_friend_requests task
+        self.poll_friend_requests.start()
+
     async def on_ready(self):
         logger.info(f"Logged in as {self.user}. ID: {self.user.id}")
 

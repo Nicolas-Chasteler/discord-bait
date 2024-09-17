@@ -3,7 +3,7 @@ import discord
 from utils.pglogger import logger
 from pygres import PostgresHandler
 
-def save_message(message):
+async def save_message(message):
     conn = PostgresHandler().get_cursor().connection
     cursor = conn.cursor()
 

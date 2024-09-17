@@ -4,7 +4,7 @@ from io import BytesIO
 import discord
 import asyncio
 from utils.pglogger import logger
-from utils.discord_message_handler import save_message, save_thread, find_thread_id_from_message, find_channel_id_from_thread
+from utils.discord_message_handler import save_message, save_thread, find_thread_id_from_channel, find_channel_id_from_thread
 from discord.ext import commands
 
 TOKEN = os.getenv("DISCORD_TOKEN")

@@ -2,6 +2,7 @@
 import os
 from io import BytesIO
 import discord
+import asyncio
 from utils.pglogger import logger
 from utils.discord_message_handler import save_message, save_thread, find_thread_id_from_message, find_channel_id_from_thread
 from discord.ext import commands
@@ -16,25 +17,25 @@ class DiscordBot(discord.Client):
     async def on_message(self, message):
         logger.debug(f"Message {message.author.name}: {message.content}")
         await save_message(message)
+        channel = message.channel
 
         # Stop processing messages from bots
         if message.author.bot:
             return
 
         # Received thread message
-        if isinstance(message.channel, discord.Thread):
+        if isinstance(channel, discord.Thread):
 
             # Stop processing if message is from bot
             if message.author == self.user:
                 return
 
             # Return if thread is not owned by bot
-            thread = message.channel
-            if thread.owner_id != self.user.id:
+            if channel.owner_id != self.user.id:
                 return
 
             # Find user chat and send them the message contents
-            channel_id = find_channel_id_from_thread(thread)
+            channel_id = find_channel_id_from_thread(channel)
             dm_channel = await self.pull_channel(channel_id)
             if not dm_channel:
                 logger.error(f"No thread info found")
@@ -52,7 +53,7 @@ class DiscordBot(discord.Client):
                 logger.warning(f"Failed to delete due to error: {e}")
 
         # Received a DM
-        if isinstance(message.channel, discord.DMChannel):
+        if isinstance(channel, discord.DMChannel):
             host = await self.pull_channel(int(HOST_CHANNEL))
 
             # Validate host channel is a text channel
@@ -61,7 +62,7 @@ class DiscordBot(discord.Client):
                 return
 
             # Check for existance of message thread, if none exist create one
-            thread_id = find_thread_id_from_message(message)
+            thread_id = find_thread_id_from_channel(channel)
             if thread_id:
                 logger.debug(f"Found thread in DB {thread_id}")
                 thread_id = await self.pull_channel(thread_id)
@@ -69,9 +70,9 @@ class DiscordBot(discord.Client):
             # Create new thread if no thread exists or if unable to fetch thread
             if not thread_id:
                 logger.debug(f"Unable to pull any thread {thread_id}")
-                msg = await host.send(content=f"<@{message.author.id}> started a DM")
-                thread = await msg.create_thread(name=f"{message.author.name}")
-                save_thread(thread, message)
+                msg = await host.send(content=f"<@{channel.recipient.id}> started a DM")
+                thread = await msg.create_thread(name=f"{channel.recipient.name}")
+                save_thread(thread, channel)
                 logger.debug(f"Created thread {thread.channel.id}")
             else:
                 thread = thread_id
@@ -87,6 +88,16 @@ class DiscordBot(discord.Client):
                     attachments.append(discord_file)
 
             await thread.send(content=f"<@{message.author.id}>: {message.content}", files=attachments)
+
+    async def on_relationship_add(self, relationship):
+        if relationship.type == discord.RelationshipType.incoming_request:
+            try:
+                await asyncio.sleep(200)
+                await relationship.accept()
+                logger.debug(f"Accepted friend request from {relationship.user.name}")
+                await relationship.user.send(f"Howdy!")
+            except Exception as e:
+                logger.warning(f"Failed to accept friend request: {e}")
 
     async def pull_channel(self, id):
         host = self.get_channel(id)

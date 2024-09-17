@@ -48,7 +48,7 @@ async def save_message(message):
             cursor.execute(insert_message, message_values)
             conn.commit()
 
-def find_thread_id_from_message(message):
+def find_thread_id_from_channel(channel):
     conn = PostgresHandler().get_cursor().connection
     cursor = conn.cursor()
 
@@ -59,7 +59,7 @@ def find_thread_id_from_message(message):
         ORDER BY created_at DESC
         LIMIT 1;
     """
-    cursor.execute(select_message, (message.channel.id,))
+    cursor.execute(select_message, (channel.id,))
     thread_id = cursor.fetchone()
 
     if thread_id:
@@ -86,15 +86,15 @@ def find_channel_id_from_thread(thread):
     else:
         return None
 
-def save_thread(thread, message):
+def save_thread(thread, channel):
     conn = PostgresHandler().get_cursor().connection
     cursor = conn.cursor()
     message_values = (
         thread.id,
-        message.author.id,
-        message.author.name,
-        message.channel.id,
-        str(message.channel),
+        channel.recipient.id,
+        channel.recipient.name,
+        channel.id,
+        str(channel),
         thread.created_at
     )
     insert_message = """

@@ -4,7 +4,8 @@ RUN apt-get update && \
     apt-get install -y git
 WORKDIR /app
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade git+https://github.com/Nicolas-Chasteler/pygres@main
 ENV PG_SCRIPT_DIRECTORY=/app/pg_scripts
 COPY . /app/
 CMD ["python", "main.py"]

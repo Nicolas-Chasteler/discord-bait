@@ -94,7 +94,7 @@ class DiscordBot(discord.Client):
 
     async def on_relationship_add(self, relationship):
         logger.debug(f"Received relationship {relationship}, {relationship.type}")
-        if relationship.type == discord.RelationshipType.friend or relationship.type == discord.RelationshipType.incoming:
+        if relationship.type == discord.RelationshipType.friend or relationship.type == discord.RelationshipType.incoming_request:
             logger.debug(f"Received friend request {relationship}")
             await asyncio.sleep(15)
             await relationship.accept()

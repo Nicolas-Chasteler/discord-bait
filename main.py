@@ -25,7 +25,7 @@ class DiscordBot(discord.Client):
         if isinstance(message.channel, discord.Thread):
 
             # Stop processing if message is from bot
-            if message.owner_id == self.user.id:
+            if message.author == self.user:
                 return
 
             # Return if thread is not owned by bot

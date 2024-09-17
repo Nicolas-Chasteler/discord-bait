@@ -1,5 +1,6 @@
 # main.py
 import os
+import io
 import discord
 from utils.pglogger import logger
 from utils.discord_message_handler import save_message

@@ -3,7 +3,7 @@ import os
 from io import BytesIO
 import discord
 from utils.pglogger import logger
-from utils.discord_message_handler import save_message, save_thread, find_thread_id
+from utils.discord_message_handler import save_message, save_thread, find_thread_id_from_message
 from discord.ext import commands
 
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -22,7 +22,34 @@ class DiscordBot(discord.Client):
             return
 
         # Received thread message
+        if isinstance(message.channel, discord.Thread):
 
+            # Stop processing if message is from bot
+            if message.owner_id == self.user.id:
+                return
+
+            # Return if thread is not owned by bot
+            thread = message.channel
+            if thread.owner_id != self.user.id:
+                return
+
+            # Find user chat and send them the message contents
+            channel_id = find_channel_id_from_thread(thread)
+            dm_channel = await self.pull_channel(channel_id)
+            if not dm_channel:
+                logger.error(f"No thread info found")
+            await dm_channel.send(message.content)
+
+            # Attempt to delete persons message
+            return # Disabled cause no perms
+            try:
+                await message.delete()
+            except discord.Forbidden:
+                logger.warning(f"Bot doesn't have permission to delete message")
+            except discord.NotFound:
+                logger.warning(f"Message was not found or has been deleted")
+            except discord.HTTPException as e:
+                logger.warning(f"Failed to delete due to error: {e}")
 
         # Received a DM
         if isinstance(message.channel, discord.DMChannel):
@@ -34,7 +61,7 @@ class DiscordBot(discord.Client):
                 return
 
             # Check for existance of message thread, if none exist create one
-            thread_id = find_thread_id(message)
+            thread_id = find_thread_id_from_message(message)
             if thread_id:
                 logger.debug(f"Found thread in DB {thread_id}")
                 thread_id = await self.pull_channel(thread_id)

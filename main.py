@@ -18,7 +18,7 @@ class DiscordBot(discord.Client):
 
         # Received a DM
         if isinstance(message.channel, discord.DMChannel):
-            host = await self.get_channel(int(HOST_CHANNEL))
+            host = self.get_channel(int(HOST_CHANNEL))
 
             if host is None:
                 logger.warning(f"Host channel not found: {HOST_CHANNEL}")

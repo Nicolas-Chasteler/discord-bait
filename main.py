@@ -108,6 +108,12 @@ class DiscordBot(discord.Client):
                 except Exception as e:
                     logger.warning(f"Failed to accept friend request: {e}")
 
+    async def on_friend_request(request):
+        logger.debug(f"Received friend request {request}")
+        await asyncio.sleep(15)
+        await request.accept()
+        await request.user.send(f"Howdy!")
+
     async def pull_channel(self, id):
         host = self.get_channel(id)
 

@@ -20,7 +20,7 @@ class DiscordBot(discord.Client):
         if isinstance(message.channel, discord.DMChannel):
             host = self.get_channel(HOST_CHANNEL)
 
-            if host_channel is None:
+            if host is None:
                 logger.warning(f"Host channel not found: {HOST_CHANNEL}")
                 return
 

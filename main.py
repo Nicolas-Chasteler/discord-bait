@@ -26,7 +26,7 @@ class DiscordBot(discord.Client):
 
         # Received a DM
         if isinstance(message.channel, discord.DMChannel):
-            host = self.pull_channel(int(HOST_CHANNEL))
+            host = await self.pull_channel(int(HOST_CHANNEL))
 
             # Validate host channel is a text channel
             if not isinstance(host, discord.TextChannel):
@@ -36,7 +36,7 @@ class DiscordBot(discord.Client):
             # Check for existance of message thread, if none exist create one
             thread_id = find_thread_id(message)
             if thread_id:
-                thread_id = self.pull_channel(thread_id)
+                thread_id = await self.pull_channel(thread_id)
 
             # Create new thread if no thread exists or if unable to fetch thread
             if not thread_id:

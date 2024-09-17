@@ -14,7 +14,7 @@ class DiscordBot(discord.Client):
 
     async def on_message(self, message):
         logger.debug(f"Message {message.author.name}: {message.content}")
-        save_message(message)
+        await save_message(message)
 
         # Received a DM
         if isinstance(message.channel, discord.DMChannel):

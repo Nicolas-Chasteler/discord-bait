@@ -1,3 +1,3 @@
 psycopg2-binary==2.9.9
 discord.py-self==2.0.0
-pygres @ git+https://github.com/Nicolas-Chasteler/pygres@main 
+pygres @ git+https://github.com/Nicolas-Chasteler/pygres@main

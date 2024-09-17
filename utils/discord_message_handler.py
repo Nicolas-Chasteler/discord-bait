@@ -36,7 +36,7 @@ def save_message(message):
 
             message_values = (
                 attachment.filename,
-                file_buffer.getvalue()
+                file_buffer.getvalue(),
                 attachment.content_type,
                 message.id
             )
